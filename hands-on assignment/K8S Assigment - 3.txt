@@ -1,0 +1,25 @@
+Assignment 1: Services and Networking
+- Create a deployment with 3 replicas of nginx
+- Expose it using ClusterIP, NodePort, and LoadBalancer services
+- Configure a multi-port service (ports 80 and 443)
+- Create a headless service and test service discovery
+
+Assignment 2: DNS and Service Discovery
+- Deploy two applications in different namespaces
+- Configure DNS
+- Perform DNS lookups from within pods
+- Implement a custom DNS policy
+
+Assignment 3: Ingress Controller
+- Install and configure an Ingress controller
+- Generate self-signed SSL certificates using OpenSSL
+- Create an Ingress resource with TLS termination
+- Configure path-based and host-based routing for multiple services
+
+Assignment 4: Network Policies
+- Deploy 3 different applications (frontend, backend, database)
+- Create network policies to:
+- Allow frontend to communicate only with backend
+- Allow backend to communicate only with database
+- Deny all other traffic by default
+- Test and verify the policies using pod labels and selectors

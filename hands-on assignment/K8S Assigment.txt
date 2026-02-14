@@ -1,0 +1,23 @@
+1. Basic Pod Creation: Create a simple pod running an Nginx container. Write the YAML definition file from scratch and deploy it to your cluster.
+
+2. Multi-Container Pod: Create a pod with two containers - one running Nginx and another running Redis. Make sure both containers can communicate with each other using localhost.
+
+3. Resource Quotas:
+- Create a new namespace called "practice-quota"
+- Apply resource quotas limiting it to maximum 5 pods, 500m CPU request, and 512Mi memory
+- Try creating pods within this namespace and observe the behavior
+
+4. Static Pods: Create a static pod by placing a pod definition file in the /etc/kubernetes/manifests directory on a worker node. Verify it runs automatically without using kubectl create.
+
+5. Complete Application Deployment: Deploy the voting application discussed in class:
+- Write deployment files for all 5 components (vote, redis, worker, database, result)
+- Create appropriate services (4 services total)
+- Use proper service types (LoadBalancer for vote and result, ClusterIP for redis and database)
+- Verify the application works by accessing the voting interface
+
+6.Pod Operations: Practice these kubectl commands:
+- Describe a pod to see its lifecycle events
+- Execute commands inside a running container
+- View logs from specific containers in a multi-container pod
+- Delete a pod and observe auto-healing behavior
+- Service Configuration: Create services with different types (ClusterIP, NodePort, LoadBalancer) and understand when to use each type.

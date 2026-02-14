@@ -1,0 +1,30 @@
+Assignment 1: Deployment and ReplicaSet Scenarios
+- Create a simple deployment with matching labels between deployment selector and pod specification
+- Create a deployment but have a pod with the same label running beforehand, observe how deployment manages total replicas
+- Create a deployment with multiple labels in matchLabels section, but do not match any labels in pod specification. Have separate pods running with individual labels and observe the behavior
+
+Assignment 2: Deployment Strategies
+- Create a deployment using recreate strategy and observe pod replacement behavior
+- Create a deployment using rolling update strategy (default) and make changes to the image, observe how pods are updated one by one
+- Practice rollback commands - make multiple revisions and roll back to specific revision numbers
+
+Assignment 3: ConfigMap Implementation
+- Create a ConfigMap with database configuration (database name, URI, ports)
+- Create pods that use the entire ConfigMap using envFrom
+- Create pods that use specific keys from ConfigMap using valueFrom
+- Verify environment variables inside the pods using kubectl exec
+
+Assignment 4: Jobs and DaemonSets
+- Create a simple job that executes a one-time command and verify completion status
+- Create a DaemonSet and verify it runs on all worker nodes
+- Observe what happens when you add or remove worker nodes with DaemonSet running
+
+Assignment 5: Liveness Probes
+- Create a pod with command-based liveness probe
+- Create a pod with HTTP GET liveness probe for a web application
+- Configure initialDelaySeconds, periodSeconds, timeoutSeconds, and failure thresholds
+
+Assignment 6: Horizontal Pod Autoscaler
+- Deploy an application with resource limits defined
+- Create HPA with minimum 1 and maximum 10 replicas based on 50% CPU utilization
+- Generate load and observe automatic scaling behavior

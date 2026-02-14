@@ -1,0 +1,26 @@
+Assignment 1: Cluster Health Check
+- Check the status of all nodes in your cluster
+- Generate a cluster-info dump and identify the key components
+- Locate and examine the logs for kube-apiserver and kubelet
+
+Assignment 2: Debug a Failed Node
+- Simulate a kubelet service failure on a worker node
+- Identify why the node shows as NotReady
+- Fix the issue and verify the node returns to Ready state
+
+Assignment 3: Application Debugging
+- Deploy a pod with an incorrect image name
+- Use kubectl describe and logs to identify the problem
+- Correct the deployment and verify it's running
+
+Assignment 4: Service Troubleshooting
+- Create a deployment with specific labels
+- Create a service with mismatched label selectors
+- Debug why the service has no endpoints and fix it
+
+Assignment 5: Logging Setup
+- Practice using kubectl logs with different flags (--previous, --tail, --since)
+
+Assignment 6: Monitoring and Autoscaling
+Install Metrics Server in your cluster
+Use kubectl top to monitor pod and node resource usage

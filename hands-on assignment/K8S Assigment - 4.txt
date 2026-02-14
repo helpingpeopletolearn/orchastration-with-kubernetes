@@ -1,0 +1,20 @@
+Assignment 1: Ephemeral Volumes
+- Create a pod with two containers sharing an EmptyDir volume
+- Have one container write data to the volume and the other read from it
+- Verify data is lost when the pod is deleted
+
+Assignment 2: ConfigMaps and Secrets
+- Create a ConfigMap with application configuration (database host, port, app settings)
+- Create a Secret with database credentials
+- Deploy a pod that mounts both as volumes and verify the data is accessible
+
+Assignment 3: Persistent Volumes
+- Create a PersistentVolume with 5Gi storage using local storage
+- Create a PersistentVolumeClaim requesting 2Gi with ReadWriteOnce access
+- Deploy a pod using this PVC and write some data to verify persistence across pod restarts
+
+Assignment 4: NFS Storage
+- Set up an NFS server and export a directory
+- Create a PersistentVolume using NFS
+- Deploy a MySQL database with persistent storage using the NFS volume
+- Verify data persists even when the pod is deleted and recreated

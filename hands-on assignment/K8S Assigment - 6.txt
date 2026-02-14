@@ -1,0 +1,21 @@
+Assignment 1: Network Policy Implementation
+- Create a network policy that restricts traffic between pods. Define a policy where only pods with the label "app: frontend" can communicate with pods labeled "app: backend" on port 8080. Test by deploying sample pods and verifying the communication restrictions.
+
+Assignment 2: Pod Security Policy
+- Write a Pod Security Policy that enforces the following constraints:
+- Containers must run as non-root users
+- Privileged mode is disabled
+- File system groups must be in the range 1-65535
+- Containers cannot use sudo mode
+- Deploy a pod that violates these policies and document the error messages received.
+
+Assignment 3: Container Image Scanning with Trivy
+- Install Trivy and scan at least three different container images from Docker Hub. Document the vulnerabilities found (categorized by severity: critical, high, medium, low) and create a report comparing the security posture of these images.
+
+Assignment 4: Kubelet Security Configuration
+- Access the kubelet configuration file on a worker node and verify the security settings. Document the authentication and authorization mechanisms in place, including certificate configurations that prevent anonymous requests.
+
+Assignment 5: OPA Gatekeeper Constraint Template
+- Create a constraint template using OPA Gatekeeper that enforces resource limits on pods. Set CPU limit to 500M and memory limit to 256M. Write both the constraint template and the constraint file, then test by attempting to deploy pods that exceed these limits.
+
+These assignments cover the main topics discussed: network security, pod security policies, container scanning, node security, and policy-based controls using Gatekeeper.

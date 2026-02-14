@@ -1,0 +1,30 @@
+Assignment 1: Node Selector Practice
+- Label node1 as env=dev, node2 as env=staging, node3 as env=prod
+- Create 3 nginx deployments (dev-app, staging-app, prod-app) with nodeSelector matching each environment
+- Verify pods are scheduled on correct nodes using kubectl get pods -o wide
+
+Assignment 2: Affinity Rules
+- Label one node with disktype=ssd
+- Create a deployment with requiredDuringSchedulingIgnoredDuringExecution for SSD nodes
+- Add preferredDuringSchedulingIgnoredDuringExecution for nodes with label memory=high
+- Deploy and verify pod placement
+
+Assignment 3: Anti-Affinity Setup
+- Create a deployment with 3 replicas of an nginx pod
+- Configure podAntiAffinity to prevent replicas from running on the same node
+- Scale to 5 replicas and observe what happens when nodes are fewer than replicas
+
+Assignment 4: Taints and Tolerations
+- Taint node1 with key=special:NoSchedule
+- Deploy a pod without tolerations and verify it doesn't schedule on node1
+- Create another pod with matching toleration and confirm it schedules successfully
+
+Assignment 5: Security Context
+- Create a pod with securityContext setting runAsUser: 1000 and fsGroup: 2000
+- Mount a volume and create a file inside the container
+- Verify the file ownership and permissions
+
+Assignment 6: Priority Classes
+- Create 3 priority classes: high-priority (1000), medium-priority (500), low-priority (100)
+- Deploy multiple pods with different priorities
+- Simulate resource pressure and observe which pods get scheduled first
