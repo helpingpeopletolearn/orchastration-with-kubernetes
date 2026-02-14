@@ -1,0 +1,317 @@
+Multi-Tier MySQL Application Deployment on Kubernetes
+
+Objective:
+Deploy a multi-tier MySQL application in Kubernetes with
+- role-based access control (RBAC)
+- dedicated namespace, quota limits
+- persistent storage
+- service verification
+- data management and dashboard visibility
+
+Karen, the DevOps engineer, will use these steps to build a robust, secure cluster deployment.
+
+Prerequisites
+
+1. Kubernetes cluster (min. v1.24) with kubectl access.
+2. Helm or kubectl for applying manifests.
+3. Dashboard installed (e.g. kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.8.0/aio/deploy/recommended.yaml).
+4. kubectl configured for admin access to create cluster-wide objects.
+
+1. Create Dedicated Namespace & Quotas
+
+```yaml
+# namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mysql-app
+---
+# quota.yaml
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: mysql-app-quota
+  namespace: mysql-app
+spec:
+  hard:
+    pods: "10"
+    requests.cpu: "4"
+    requests.memory: "8Gi"
+    persistentvolumeclaims: "5"
+    requests.storage: "50Gi"
+```
+
+```bash
+kubectl apply -f namespace.yaml
+kubectl apply -f quota.yaml
+```
+
+Namespacess isolate resources; quotas prevent runaway consumption.
+
+2. Define User Roles & RBAC
+
+Service accounts & roles
+
+```yaml
+# rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mysql-deployer
+  namespace: mysql-app
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mysql-manager
+  namespace: mysql-app
+rules:
+  - apiGroups: ["", "apps", "batch"]
+    resources: ["pods", "deployments", "services", "persistentvolumeclaims"]
+    verbs: ["get","list","watch","create","delete","patch","update"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: bind-mysql-manager
+  namespace: mysql-app
+subjects:
+  - kind: ServiceAccount
+    name: mysql-deployer
+    namespace: mysql-app
+roleRef:
+  kind: Role
+  name: mysql-manager
+  apiGroup: rbac.authorization.k8s.io
+```
+
+Grant the team limited access to manage only the mysql-app namespace.
+
+3. Provision Persistent Storage
+
+PersistentVolume (if using hostPath for demo)
+
+```yaml
+# pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/data/mysql
+```
+
+PersistentVolumeClaim
+
+```yaml
+# pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: mysql-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+```
+
+```bash
+kubectl apply -f pv.yaml
+kubectl apply -f pvc.yaml
+```
+
+Storage is bound and reserved for MySQL data.
+
+4. Deploy MySQL & Application
+
+MySQL Deployment
+
+```yaml
+# mysql-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: mysql-app
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      serviceAccountName: mysql-deployer
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: root-password
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+```
+
+Secret for credentials
+
+```yaml
+# mysql-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+  namespace: mysql-app
+type: Opaque
+stringData:
+  root-password: s3cr3tP@ss
+```
+
+Service for MySQL
+
+```yaml
+# mysql-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: mysql-app
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: mysql
+  type: ClusterIP
+```
+
+Application Deployment (e.g., PHP/Node.js front end)
+
+```yaml
+# app-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  namespace: mysql-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      serviceAccountName: mysql-deployer
+      containers:
+        - name: webapp
+          image: yourorg/webapp:latest
+          env:
+            - name: DB_HOST
+              value: mysql.mysql-app.svc.cluster.local
+            - name: DB_USER
+              value: root
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: root-password
+          ports:
+            - containerPort: 8080
+```
+
+```yaml
+# app-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp
+  namespace: mysql-app
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: webapp
+  type: LoadBalancer
+```
+
+Apply all with:
+
+```bash
+kubectl apply -f mysql-secret.yaml \
+              -f mysql-deployment.yaml \
+              -f mysql-service.yaml \
+              -f app-deployment.yaml \
+              -f app-service.yaml
+```
+
+5. Service Verification
+
+Use kubectl to ensure resources are ready:
+
+```bash
+kubectl get pods -n mysql-app
+kubectl get svc -n mysql-app
+kubectl describe deployment/mysql -n mysql-app
+```
+
+6. Dashboard Access & Namespace Restriction
+
+Create dashboard user and token and limit view to mysql-app namespace.
+
+7. Enforce Quota & Resource Limits
+
+```yaml
+# limit-range.yaml
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: mysql-limits
+  namespace: mysql-app
+spec:
+  limits:
+    - default:
+        cpu: 500m
+        memory: 512Mi
+      defaultRequest:
+        cpu: 250m
+        memory: 256Mi
+      type: Container
+```
+
+```bash
+kubectl apply -f limit-range.yaml
+```
+
+8. Data Management
+
+Backup CronJob example and restore instructions.
+
+9. Summary & Best Practices
+
+Discuss scale, security, observability.
+
+Final Notes
+
+Cleanup with kubectl delete namespace mysql-app
