@@ -1,0 +1,27 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: resourcelimits
+spec:
+  crd:
+    spec:
+      names:
+        kind: ResourceLimits
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package resourcelimits
+
+        violation[{"msg": msg}] {
+          input.review.object.kind == "Pod"
+          limits := input.review.object.spec.containers[_].resources.limits
+          limits.cpu > "500m"
+          msg := sprintf("CPU limit exceeds than allowed maximum: %v, [limits.cpu])
+        }
+
+        violation[{"msg": msg}] {
+          input.review.object.kind == "Pod"
+          limits := input.review.object.spec.containers[_].resources.limits
+          limits.memory > "256Mi"
+          msg := sprintf("Memory limit exceeds than allowed maximum: %v, [limits.memory])
+        }
